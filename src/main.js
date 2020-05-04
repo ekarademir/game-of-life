@@ -20,7 +20,20 @@ let diff = [
   [5, 11, 1],
 ];
 setup();
-setTimeout(loop, 1000);
+
+let start = null;
+function step(timestamp) {
+  if (!start) start = timestamp;
+  let progress = timestamp - start;
+  console.log(progress)
+  if (progress > 1000) {
+    diff = loop(diff);
+    start = timestamp;
+  }
+  window.requestAnimationFrame(step);
+}
+
+window.requestAnimationFrame(step);
 
 function setup() {
   let stage = document.getElementById("stage");
@@ -33,10 +46,10 @@ function setup() {
   stage.appendChild(grid);
 }
 
-function loop() {
-  diff = calculateDiff(diff, STATE)
-  drawTiles(diff);
-  setTimeout(loop, 1000);
+function loop(oldDiff) {
+  let newDiff = calculateDiff(oldDiff, STATE)
+  drawTiles(newDiff);
+  return newDiff;
 }
 
 function createGrid() {
@@ -112,33 +125,33 @@ function drawTiles(diff) {
 }
 
 function calculateDiff(paintedTiles, state) {
-  let diff = [];
+  let changes = {};
   for(let i = 0; i < paintedTiles.length; ++i) {
     let row = paintedTiles[i][0] + PADDING;
     let col = paintedTiles[i][1] + PADDING;
 
     // top left
-    checkNeighbors(row - 1, col - 1, state, diff);
+    checkNeighbors(row - 1, col - 1, state, changes);
     // top center
-    checkNeighbors(row - 1, col, state, diff);
+    checkNeighbors(row - 1, col, state, changes);
     // top right
-    checkNeighbors(row - 1, col + 1, state, diff);
+    checkNeighbors(row - 1, col + 1, state, changes);
     // mid left
-    checkNeighbors(row, col - 1, state, diff);
+    checkNeighbors(row, col - 1, state, changes);
     // mid right
-    checkNeighbors(row, col + 1, state, diff);
+    checkNeighbors(row, col + 1, state, changes);
     // bottom left
-    checkNeighbors(row + 1, col - 1, state, diff);
+    checkNeighbors(row + 1, col - 1, state, changes);
     // bottom center
-    checkNeighbors(row + 1, col, state, diff);
+    checkNeighbors(row + 1, col, state, changes);
     // bottom right
-    checkNeighbors(row + 1, col + 1, state, diff);
+    checkNeighbors(row + 1, col + 1, state, changes);
   }
 
-  return diff;
+  return Object.values(changes);
 }
 
-function checkNeighbors(i, j, state, diff) {
+function checkNeighbors(i, j, state, changes) {
   if (i < 0 || j < 0 || i >= state.length || j >= state[0].length) return;
   let numPainted = 0;
   // top left
@@ -159,10 +172,10 @@ function checkNeighbors(i, j, state, diff) {
   if (i + 1 < state.length && j + 1 < state[0].length && state[i + 1][j + 1] == 1) numPainted++;
 
   if (state[i][j] == 1) {
-    if (numPainted < 2) diff.push([i - PADDING, j - PADDING, 0]);
-    else if (numPainted > 3) diff.push([i - PADDING, j - PADDING, 0]);
+    if (numPainted < 2) changes[[i - PADDING, j - PADDING]] = [i - PADDING, j - PADDING, 0]
+    else if (numPainted > 3) changes[[i - PADDING, j - PADDING]]= [i - PADDING, j - PADDING, 0];
   }
   else {
-    if (numPainted === 3) diff.push([i - PADDING, j - PADDING, 1]);
+    if (numPainted === 3) changes[[i - PADDING, j - PADDING]] = [i - PADDING, j - PADDING, 1];
   }
 }

@@ -12,6 +12,7 @@ const TILE_SIZE_WIDTH = STAGE_WIDTH / GRID_SIZE_ROW;
 const TILE_SIZE_HEIGHT = STAGE_HEIGHT / GRID_SIZE_COL;
 const TILES = [];
 const STATE = [];
+const PADDING = 2;
 
 setup();
 
@@ -31,16 +32,28 @@ function setup() {
   stage.appendChild(grid);
 }
 
+function loop() {
+
+}
+
 function createGrid() {
 
   let grid = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   grid.setAttribute("width", STAGE_WIDTH);
   grid.setAttribute("height", STAGE_HEIGHT);
 
+  // State
+  for (let i = 0; i < GRID_SIZE_ROW + PADDING * 2; ++i) {
+    let stateRow = [];
+    for (let j = 0; j < GRID_SIZE_COL + PADDING * 2; ++j) {
+      stateRow.push(0);
+    }
+    STATE.push(stateRow);
+  }
+
   // Tiles
   for (let i = 0; i < GRID_SIZE_ROW; ++i) {
     let tileRow = [];
-    let stateRow = [];
     for (let j = 0; j < GRID_SIZE_COL; ++j) {
       let tileY = i * TILE_SIZE_HEIGHT;
       let tileX = j * TILE_SIZE_WIDTH;
@@ -52,10 +65,8 @@ function createGrid() {
       tile.setAttribute("fill", "white");
       grid.appendChild(tile);
       tileRow.push(tile);
-      stateRow.push(0);
     }
     TILES.push(tileRow);
-    STATE.push(stateRow);
   }
 
   // Horizontal grid lines
@@ -89,16 +100,62 @@ function drawTiles(diff) {
     let col = diff[i][1];
     if(diff[i][2] === 1) {
       TILES[row][col].setAttribute("fill", "black");
-      STATE[row][col] = 1;
+      STATE[row + PADDING][col + PADDING] = 1;
     } else {
       TILES[row][col].setAttribute("fill", "white");
-      STATE[row][col] = 0;
+      STATE[row + PADDING][col + PADDING] = 0;
     }
   }
 }
 
-function calculateDiff(state) {
+function calculateDiff(paintedTiles, state) {
   let diff = [];
+  for(let i = 0; i < paintedTiles.length; ++i) {
+    let row = paintedTiles[i][0];
+    let col = paintedTiles[i][1];
 
+    // top left
+    checkNeighbors(row - 1, col - 1, state, diff);
+    // top center
+    checkNeighbors(row - 1, col, state, diff);
+    // top right
+    checkNeighbors(row - 1, col + 1, state, diff);
+    // mid left
+    checkNeighbors(row, col - 1, state, diff);
+    // mid right
+    checkNeighbors(row, col + 1, state, diff);
+    // bottom left
+    checkNeighbors(row + 1, col - 1, state, diff);
+    // bottom center
+    checkNeighbors(row + 1, col, state, diff);
+    // bottom right
+    checkNeighbors(row + 1, col + 1, state, diff);
+  }
 
+  return diff;
+}
+
+function checkNeighbors(i, j, state, diff) {
+  if (i < 0 || j < 0 || i >= state.length || j >= state[0].length) return;
+  let numPainted = 0;
+  // top left
+  if (i - 1 >= 0 && j - 1 >= 0 && state[i - 1][j - 1] == 1) numPainted++;
+  // top center
+  if (i - 1 >= 0 && state[i - 1][j] == 1) numPainted++;
+  // top right
+  if (i - 1 >= 0 && j + 1 < state[0].length && state[i - 1][j + 1] == 1) numPainted++;
+  // mid left
+  if (j - 1 >= 0 && state[i][j - 1] == 1) numPainted++;
+  // mid right
+  if (j + 1 < state[0].length && state[i][j + 1] == 1) numPainted++;
+  // bottom left
+  if (i + 1 < state.length && j - 1 >= 0 && state[i + 1][j - 1] == 1) numPainted++;
+  // bottom center
+  if (i + 1 < state.length && state[i + 1][j] == 1) numPainted++;
+  // bottom right
+  if (i + 1 < state.length && j + 1 < state[0].length && state[i + 1][j + 1] == 1) numPainted++;
+
+  if (numPainted < 3) diff.push([i - PADDING, j - PADDING, 0]);
+  if (numPainted > 3) diff.push([i - PADDING, j - PADDING, 0]);
+  return diff.push([i - PADDING, j - PADDING, 1]);
 }

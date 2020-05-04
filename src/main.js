@@ -4,10 +4,10 @@ if (!window.Worker) {
   throw new Error("WorkerAPI is not supported");
 }
 
-const STAGE_WIDTH = 400;
-const STAGE_HEIGHT = 400;
-const GRID_SIZE_ROW = 20;
-const GRID_SIZE_COL = 20;
+const STAGE_WIDTH = 500;
+const STAGE_HEIGHT = 500;
+const GRID_SIZE_ROW = 100;
+const GRID_SIZE_COL = 100;
 const TILE_SIZE_WIDTH = STAGE_WIDTH / GRID_SIZE_ROW;
 const TILE_SIZE_HEIGHT = STAGE_HEIGHT / GRID_SIZE_COL;
 const TILES = [];
@@ -15,9 +15,57 @@ const STATE = [];
 const PADDING = 2;
 
 let diff = [
-  [5, 9, 1],
-  [5, 10, 1],
+  [5, 1, 1],
+  [5, 2, 1],
+
+  [6, 1, 1],
+  [6, 2, 1],
+
   [5, 11, 1],
+  [6, 11, 1],
+  [7, 11, 1],
+
+  [4, 12, 1],
+  [8, 12, 1],
+
+  [3, 13, 1],
+  [9, 13, 1],
+
+  [3, 14, 1],
+  [9, 14, 1],
+
+  [6, 15, 1],
+
+  [4, 16, 1],
+  [8, 16, 1],
+
+  [5, 17, 1],
+  [6, 17, 1],
+  [7, 17, 1],
+
+  [6, 18, 1],
+
+  [3, 21, 1],
+  [4, 21, 1],
+  [5, 21, 1],
+
+  [3, 22, 1],
+  [4, 22, 1],
+  [5, 22, 1],
+
+  [2, 23, 1],
+  [6, 23, 1],
+
+  [1, 25, 1],
+  [2, 25, 1],
+  [6, 25, 1],
+  [7, 25, 1],
+
+  [3, 35, 1],
+  [4, 35, 1],
+
+  [3, 36, 1],
+  [4, 36, 1],
 ];
 setup();
 
@@ -25,8 +73,7 @@ let start = null;
 function step(timestamp) {
   if (!start) start = timestamp;
   let progress = timestamp - start;
-  console.log(progress)
-  if (progress > 1000) {
+  if (progress > 10) {
     diff = loop(diff);
     start = timestamp;
   }
@@ -41,19 +88,23 @@ function setup() {
 
   let grid = createGrid();
 
-  drawTiles(diff);
+  update(diff);
 
   stage.appendChild(grid);
 }
 
 function loop(oldDiff) {
   let newDiff = calculateDiff(oldDiff, STATE)
-  drawTiles(newDiff);
+  update(newDiff);
   return newDiff;
 }
 
-function createGrid() {
+function update(diff) {
+  drawTiles(diff);
+  updateState(diff);
+}
 
+function createGrid() {
   let grid = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   grid.setAttribute("width", STAGE_WIDTH);
   grid.setAttribute("height", STAGE_HEIGHT);
@@ -114,12 +165,26 @@ function drawTiles(diff) {
   for(let i = 0; i < diff.length; ++i) {
     let row = diff[i][0];
     let col = diff[i][1];
-    if(diff[i][2] === 1) {
-      TILES[row][col].setAttribute("fill", "black");
-      STATE[row + PADDING][col + PADDING] = 1;
-    } else {
-      TILES[row][col].setAttribute("fill", "white");
-      STATE[row + PADDING][col + PADDING] = 0;
+    if (row >= 0 && col > 0 && row < TILES.length && col < TILES[0].length){
+      if(diff[i][2] === 1) {
+        TILES[row][col].setAttribute("fill", "black");
+      } else {
+        TILES[row][col].setAttribute("fill", "white");
+      }
+    }
+  }
+}
+
+function updateState(diff) {
+  for(let i = 0; i < diff.length; ++i) {
+    let row = diff[i][0] + PADDING;
+    let col = diff[i][1] + PADDING;
+    if (row >= 0 && col > 0 && row < STATE.length && col < STATE[0].length){
+      if(diff[i][2] === 1) {
+        STATE[row][col] = 1;
+      } else {
+        STATE[row][col] = 0;
+      }
     }
   }
 }
@@ -138,6 +203,8 @@ function calculateDiff(paintedTiles, state) {
     checkNeighbors(row - 1, col + 1, state, changes);
     // mid left
     checkNeighbors(row, col - 1, state, changes);
+    // mid center
+    checkNeighbors(row, col, state, changes);
     // mid right
     checkNeighbors(row, col + 1, state, changes);
     // bottom left

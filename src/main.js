@@ -11,6 +11,7 @@ const GRID_SIZE_COL = 20;
 const TILE_SIZE_WIDTH = STAGE_WIDTH / GRID_SIZE_ROW;
 const TILE_SIZE_HEIGHT = STAGE_HEIGHT / GRID_SIZE_COL;
 const TILES = [];
+const STATE = [];
 
 setup();
 
@@ -21,11 +22,11 @@ function setup() {
   let grid = createGrid();
 
   let state = [
-    [2, 3],
-    [5, 10],
+    [2, 3, 1],
+    [5, 10, 1],
   ];
 
-  drawTiles(state, grid);
+  drawTiles(state);
 
   stage.appendChild(grid);
 }
@@ -39,6 +40,7 @@ function createGrid() {
   // Tiles
   for (let i = 0; i < GRID_SIZE_ROW; ++i) {
     let tileRow = [];
+    let stateRow = [];
     for (let j = 0; j < GRID_SIZE_COL; ++j) {
       let tileY = i * TILE_SIZE_HEIGHT;
       let tileX = j * TILE_SIZE_WIDTH;
@@ -50,8 +52,10 @@ function createGrid() {
       tile.setAttribute("fill", "white");
       grid.appendChild(tile);
       tileRow.push(tile);
+      stateRow.push(0);
     }
     TILES.push(tileRow);
+    STATE.push(stateRow);
   }
 
   // Horizontal grid lines
@@ -79,8 +83,22 @@ function createGrid() {
   return grid;
 }
 
-function drawTiles(state) {
-  for(let i = 0; i < state.length; ++i) {
-    TILES[state[i][0]][state[i][1]].setAttribute("fill", "black");
+function drawTiles(diff) {
+  for(let i = 0; i < diff.length; ++i) {
+    let row = diff[i][0];
+    let col = diff[i][1];
+    if(diff[i][2] === 1) {
+      TILES[row][col].setAttribute("fill", "black");
+      STATE[row][col] = 1;
+    } else {
+      TILES[row][col].setAttribute("fill", "white");
+      STATE[row][col] = 0;
+    }
   }
+}
+
+function calculateDiff(state) {
+  let diff = [];
+
+
 }

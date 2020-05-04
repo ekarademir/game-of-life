@@ -22,12 +22,15 @@ function setup() {
 
   let grid = createGrid();
 
-  let state = [
-    [2, 3, 1],
+  let diff = [
+    [5, 9, 1],
     [5, 10, 1],
+    [5, 11, 1],
   ];
 
-  drawTiles(state);
+  drawTiles(diff);
+  diff = calculateDiff(diff, STATE)
+  drawTiles(diff);
 
   stage.appendChild(grid);
 }
@@ -111,8 +114,8 @@ function drawTiles(diff) {
 function calculateDiff(paintedTiles, state) {
   let diff = [];
   for(let i = 0; i < paintedTiles.length; ++i) {
-    let row = paintedTiles[i][0];
-    let col = paintedTiles[i][1];
+    let row = paintedTiles[i][0] + PADDING;
+    let col = paintedTiles[i][1] + PADDING;
 
     // top left
     checkNeighbors(row - 1, col - 1, state, diff);
@@ -155,7 +158,11 @@ function checkNeighbors(i, j, state, diff) {
   // bottom right
   if (i + 1 < state.length && j + 1 < state[0].length && state[i + 1][j + 1] == 1) numPainted++;
 
-  if (numPainted < 3) diff.push([i - PADDING, j - PADDING, 0]);
-  if (numPainted > 3) diff.push([i - PADDING, j - PADDING, 0]);
-  return diff.push([i - PADDING, j - PADDING, 1]);
+  if (state[i][j] == 1) {
+    if (numPainted < 2) diff.push([i - PADDING, j - PADDING, 0]);
+    else if (numPainted > 3) diff.push([i - PADDING, j - PADDING, 0]);
+  }
+  else {
+    if (numPainted === 3) diff.push([i - PADDING, j - PADDING, 1]);
+  }
 }

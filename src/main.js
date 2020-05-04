@@ -10,6 +10,7 @@ const GRID_SIZE_ROW = 20;
 const GRID_SIZE_COL = 20;
 const TILE_SIZE_WIDTH = STAGE_WIDTH / GRID_SIZE_ROW;
 const TILE_SIZE_HEIGHT = STAGE_HEIGHT / GRID_SIZE_COL;
+const TILES = [];
 
 setup();
 
@@ -34,6 +35,24 @@ function createGrid() {
   let grid = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   grid.setAttribute("width", STAGE_WIDTH);
   grid.setAttribute("height", STAGE_HEIGHT);
+
+  // Tiles
+  for (let i = 0; i < GRID_SIZE_ROW; ++i) {
+    let tileRow = [];
+    for (let j = 0; j < GRID_SIZE_COL; ++j) {
+      let tileY = i * TILE_SIZE_HEIGHT;
+      let tileX = j * TILE_SIZE_WIDTH;
+      let tile = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      tile.setAttribute("x", tileX);
+      tile.setAttribute("y", tileY);
+      tile.setAttribute("width", TILE_SIZE_WIDTH);
+      tile.setAttribute("height", TILE_SIZE_HEIGHT);
+      tile.setAttribute("fill", "white");
+      grid.appendChild(tile);
+      tileRow.push(tile);
+    }
+    TILES.push(tileRow);
+  }
 
   // Horizontal grid lines
   for (let i = 0; i < GRID_SIZE_ROW; ++i) {
@@ -60,17 +79,8 @@ function createGrid() {
   return grid;
 }
 
-function drawTiles(state, grid) {
+function drawTiles(state) {
   for(let i = 0; i < state.length; ++i) {
-    let tileY = state[i][0] * TILE_SIZE_HEIGHT;
-    let tileX = state[i][1] * TILE_SIZE_WIDTH;
-    let tile = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    tile.setAttribute("x", tileX);
-    tile.setAttribute("y", tileY);
-    tile.setAttribute("width", TILE_SIZE_WIDTH);
-    tile.setAttribute("height", TILE_SIZE_HEIGHT);
-    tile.setAttribute("fill", "black");
-
-    grid.appendChild(tile);
+    TILES[state[i][0]][state[i][1]].setAttribute("fill", "black");
   }
 }

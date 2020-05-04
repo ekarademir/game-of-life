@@ -14,7 +14,13 @@ const TILES = [];
 const STATE = [];
 const PADDING = 2;
 
+let diff = [
+  [5, 9, 1],
+  [5, 10, 1],
+  [5, 11, 1],
+];
 setup();
+setTimeout(loop, 1000);
 
 function setup() {
   let stage = document.getElementById("stage");
@@ -22,21 +28,15 @@ function setup() {
 
   let grid = createGrid();
 
-  let diff = [
-    [5, 9, 1],
-    [5, 10, 1],
-    [5, 11, 1],
-  ];
-
-  drawTiles(diff);
-  diff = calculateDiff(diff, STATE)
   drawTiles(diff);
 
   stage.appendChild(grid);
 }
 
 function loop() {
-
+  diff = calculateDiff(diff, STATE)
+  drawTiles(diff);
+  setTimeout(loop, 1000);
 }
 
 function createGrid() {

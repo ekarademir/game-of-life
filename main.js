@@ -4,10 +4,10 @@ if (!window.Worker) {
   throw new Error("WorkerAPI is not supported");
 }
 
-const STAGE_WIDTH = 500;
-const STAGE_HEIGHT = 500;
-const GRID_SIZE_ROW = 100;
-const GRID_SIZE_COL = 100;
+const STAGE_WIDTH = 800;
+const STAGE_HEIGHT = 800;
+const GRID_SIZE_ROW = 80;
+const GRID_SIZE_COL = 80;
 const TILE_SIZE_WIDTH = STAGE_WIDTH / GRID_SIZE_ROW;
 const TILE_SIZE_HEIGHT = STAGE_HEIGHT / GRID_SIZE_COL;
 const TILES = [];
@@ -152,6 +152,9 @@ function createGrid() {
       tile.setAttribute("width", TILE_SIZE_WIDTH);
       tile.setAttribute("height", TILE_SIZE_HEIGHT);
       tile.setAttribute("fill", "white");
+
+      tile.addEventListener("mousedown", decorateTileClickEvent(i, j));
+
       grid.appendChild(tile);
       tileRow.push(tile);
     }
@@ -181,6 +184,24 @@ function createGrid() {
   }
 
   return grid;
+}
+
+function decorateTileClickEvent(row, col) {
+  function tileClick(event) {
+    if(GAME_STATE.isRunning) return;
+
+    if(STATE[row + PADDING][col + PADDING] === 1) {
+      STATE[row + PADDING][col + PADDING] = 0;
+      TILES[row][col].setAttribute("fill", "white");
+      GAME_STATE.changedTiles.push([row, col, 0]);
+    } else {
+      STATE[row + PADDING][col + PADDING] = 1;
+      TILES[row][col].setAttribute("fill", "black");
+      GAME_STATE.changedTiles.push([row, col, 0]);
+    }
+  }
+
+  return tileClick;
 }
 
 function switchTiles(diff) {

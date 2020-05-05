@@ -69,17 +69,17 @@ let diff = [
 ];
 setup();
 
+// Animation loop
 let start = null;
 function step(timestamp) {
   if (!start) start = timestamp;
   let progress = timestamp - start;
   if (progress > 10) {
-    diff = loop(diff);
+    diff = stepSimulation(diff);
     start = timestamp;
   }
   window.requestAnimationFrame(step);
 }
-
 window.requestAnimationFrame(step);
 
 function setup() {
@@ -93,14 +93,14 @@ function setup() {
   stage.appendChild(grid);
 }
 
-function loop(oldDiff) {
+function stepSimulation(oldDiff) {
   let newDiff = calculateDiff(oldDiff, STATE)
   update(newDiff);
   return newDiff;
 }
 
 function update(diff) {
-  drawTiles(diff);
+  switchTiles(diff);
   updateState(diff);
 }
 
@@ -161,7 +161,7 @@ function createGrid() {
   return grid;
 }
 
-function drawTiles(diff) {
+function switchTiles(diff) {
   for(let i = 0; i < diff.length; ++i) {
     let row = diff[i][0];
     let col = diff[i][1];
@@ -196,29 +196,29 @@ function calculateDiff(paintedTiles, state) {
     let col = paintedTiles[i][1] + PADDING;
 
     // top left
-    checkNeighbors(row - 1, col - 1, state, changes);
+    applyRules(row - 1, col - 1, state, changes);
     // top center
-    checkNeighbors(row - 1, col, state, changes);
+    applyRules(row - 1, col, state, changes);
     // top right
-    checkNeighbors(row - 1, col + 1, state, changes);
+    applyRules(row - 1, col + 1, state, changes);
     // mid left
-    checkNeighbors(row, col - 1, state, changes);
+    applyRules(row, col - 1, state, changes);
     // mid center
-    checkNeighbors(row, col, state, changes);
+    applyRules(row, col, state, changes);
     // mid right
-    checkNeighbors(row, col + 1, state, changes);
+    applyRules(row, col + 1, state, changes);
     // bottom left
-    checkNeighbors(row + 1, col - 1, state, changes);
+    applyRules(row + 1, col - 1, state, changes);
     // bottom center
-    checkNeighbors(row + 1, col, state, changes);
+    applyRules(row + 1, col, state, changes);
     // bottom right
-    checkNeighbors(row + 1, col + 1, state, changes);
+    applyRules(row + 1, col + 1, state, changes);
   }
 
   return Object.values(changes);
 }
 
-function checkNeighbors(i, j, state, changes) {
+function applyRules(i, j, state, changes) {
   if (i < 0 || j < 0 || i >= state.length || j >= state[0].length) return;
   let numPainted = 0;
   // top left

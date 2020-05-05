@@ -14,60 +14,64 @@ const TILES = [];
 const STATE = [];
 const PADDING = 2;
 
-let diff = [
-  [5, 1, 1],
-  [5, 2, 1],
+const GAME_STATE = {
+  isRunning: true,
+  changedTiles: [
+    [5, 1, 1],
+    [5, 2, 1],
 
-  [6, 1, 1],
-  [6, 2, 1],
+    [6, 1, 1],
+    [6, 2, 1],
 
-  [5, 11, 1],
-  [6, 11, 1],
-  [7, 11, 1],
+    [5, 11, 1],
+    [6, 11, 1],
+    [7, 11, 1],
 
-  [4, 12, 1],
-  [8, 12, 1],
+    [4, 12, 1],
+    [8, 12, 1],
 
-  [3, 13, 1],
-  [9, 13, 1],
+    [3, 13, 1],
+    [9, 13, 1],
 
-  [3, 14, 1],
-  [9, 14, 1],
+    [3, 14, 1],
+    [9, 14, 1],
 
-  [6, 15, 1],
+    [6, 15, 1],
 
-  [4, 16, 1],
-  [8, 16, 1],
+    [4, 16, 1],
+    [8, 16, 1],
 
-  [5, 17, 1],
-  [6, 17, 1],
-  [7, 17, 1],
+    [5, 17, 1],
+    [6, 17, 1],
+    [7, 17, 1],
 
-  [6, 18, 1],
+    [6, 18, 1],
 
-  [3, 21, 1],
-  [4, 21, 1],
-  [5, 21, 1],
+    [3, 21, 1],
+    [4, 21, 1],
+    [5, 21, 1],
 
-  [3, 22, 1],
-  [4, 22, 1],
-  [5, 22, 1],
+    [3, 22, 1],
+    [4, 22, 1],
+    [5, 22, 1],
 
-  [2, 23, 1],
-  [6, 23, 1],
+    [2, 23, 1],
+    [6, 23, 1],
 
-  [1, 25, 1],
-  [2, 25, 1],
-  [6, 25, 1],
-  [7, 25, 1],
+    [1, 25, 1],
+    [2, 25, 1],
+    [6, 25, 1],
+    [7, 25, 1],
 
-  [3, 35, 1],
-  [4, 35, 1],
+    [3, 35, 1],
+    [4, 35, 1],
 
-  [3, 36, 1],
-  [4, 36, 1],
-];
-setup();
+    [3, 36, 1],
+    [4, 36, 1],
+  ]
+}
+
+setup(GAME_STATE);
 
 // Animation loop
 let start = null;
@@ -75,7 +79,9 @@ function step(timestamp) {
   if (!start) start = timestamp;
   let progress = timestamp - start;
   if (progress > 10) {
-    diff = stepSimulation(diff);
+    if(GAME_STATE.isRunning) {
+      GAME_STATE.changedTiles = stepSimulation(GAME_STATE.changedTiles);
+    }
     start = timestamp;
   }
   window.requestAnimationFrame(step);
@@ -83,14 +89,30 @@ function step(timestamp) {
 window.requestAnimationFrame(step);
 
 function setup() {
-  let stage = document.getElementById("stage");
+  const stage = document.getElementById("stage");
   stage.innerHTML = "";
 
-  let grid = createGrid();
-
-  update(diff);
-
+  const grid = createGrid();
+  update(GAME_STATE.changedTiles);
   stage.appendChild(grid);
+
+  const toggleButton = document.getElementById("toggle");
+  toggleButton.addEventListener("mousedown", simulationControlHandler);
+}
+
+function toggleSimulationState() {
+  GAME_STATE.isRunning = !GAME_STATE.isRunning;
+}
+
+function simulationControlHandler(event) {
+  toggleSimulationState();
+
+  const toggleButton = document.getElementById("toggle");
+  if(GAME_STATE.isRunning) {
+    toggleButton.innerText = "STOP";
+  } else {
+    toggleButton.innerText = "PLAY";
+  }
 }
 
 function stepSimulation(oldDiff) {
